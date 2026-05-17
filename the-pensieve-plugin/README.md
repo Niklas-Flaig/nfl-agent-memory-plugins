@@ -66,7 +66,7 @@ Add the marketplace, then install the plugin:
 ```bash
 # from inside a Claude Code session
 /plugin marketplace add /Users/ephandor/emdash/repositories/agent-plugins
-/plugin install the-pensieve-plugin@agent-plugins
+/plugin install the-pensieve-plugin@niklas-agent-plugins
 ```
 
 Or, with a local-only path install (no marketplace registration):

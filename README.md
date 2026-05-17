@@ -21,7 +21,7 @@ From inside a Claude Code session:
 Then install any individual plugin:
 
 ```
-/plugin install the-pensieve-plugin@agent-plugins
+/plugin install the-pensieve-plugin@niklas-agent-plugins
 ```
 
 Per-plugin READMEs document their own prerequisites and configuration.
