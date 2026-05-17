@@ -1,0 +1,17 @@
+{
+  "name": "agent-plugins",
+  "owner": {
+    "name": "Lord Niklas Flaig"
+  },
+  "metadata": {
+    "description": "Private plugin registry for Claude Code plugins authored by Lord Niklas Flaig.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "the-pensieve-plugin",
+      "source": "./the-pensieve-plugin",
+      "description": "Routes Claude between repo-local docs and a cross-project Basic Memory vault. Injects session-start routing rules, detects local drift against the vault's project meta, and exposes verify/fetch/reconcile/update-meta skills for working across repos."
+    }
+  ]
+}

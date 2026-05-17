@@ -1,0 +1,48 @@
+# the-pensieve config.toml — copy to ~/.config/the-pensieve/config.toml and edit.
+# Defaults match spec §13. The session-start hook's shell config reader
+# (scripts/read-config.sh) is intentionally narrow: single-line `key = value`
+# entries inside the documented sections only. Anything fancier (inline
+# tables, multi-line strings, array values) is not parsed by the hook.
+# Skills that need richer config read it via dedicated helpers.
+
+[vault]
+# Pick exactly ONE of `url` or `path`. If both are set, `url` wins and `path`
+# is ignored with a warning at plugin load. There is no "hybrid mode".
+# url  = "https://pensieve.your-domain.app"
+path = "~/the-pensieve"
+basic_memory_project = "pensieve"
+
+# Auth is handled by Claude Code's built-in MCP OAuth. Configure the
+# connector once via:
+#   claude mcp add basic-memory --transport http https://pensieve.your-domain.app/mcp
+#   claude mcp auth basic-memory
+# See spec §18 for the gateway-side setup.
+
+[cache]
+dir = "~/.cache/the-pensieve"
+max_size_mb = 500
+ttl_days = 14
+
+[git]
+gh_command = "gh"
+remote_fetch_enabled = true
+
+[verification]
+ttl_hours = 12
+
+[drift_severity]
+moderate_doc_files_threshold = 1
+heavy_doc_files_threshold = 3
+moderate_files_threshold = 50
+minor_files_threshold = 10
+
+[drift_severity.doc_patterns]
+regex = "\\.(md|mdx)$|^docs/|^adr/|^CONTEXT\\.md|^README\\.md"
+
+[defrag]
+report_dir = "~/the-pensieve/_defrag-reports"
+default_logs_path_relative = ".memsearch/memory/"
+
+[behavior]
+auto_inject_instruction = true
+inject_dictionary_summary = false
