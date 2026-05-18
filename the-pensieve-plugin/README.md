@@ -204,8 +204,8 @@ repo:
 
 ```bash
 cd /path/to/some/repo
-CLAUDE_PLUGIN_ROOT=/Users/ephandor/emdash/repositories/agent-plugins/the-pensieve-plugin \
-  /Users/ephandor/emdash/repositories/agent-plugins/the-pensieve-plugin/hooks/session-start.sh \
+CLAUDE_PLUGIN_ROOT=/Users/ephandor/emdash/repositories/nfl-agent-memory-plugins/the-pensieve-plugin \
+  /Users/ephandor/emdash/repositories/nfl-agent-memory-plugins/the-pensieve-plugin/hooks/session-start.sh \
   | python3 -m json.tool
 ```
 
@@ -221,8 +221,8 @@ To exercise drift detection, hand-craft a mirror file. Example:
 mkdir -p ~/.cache/the-pensieve/meta-mirror
 cat > ~/.cache/the-pensieve/meta-mirror/$(basename "$(git rev-parse --show-toplevel)").json <<'JSON'
 {
-  "slug": "agent-plugins",
-  "repo_path": "/Users/ephandor/emdash/repositories/agent-plugins",
+  "slug": "nfl-agent-memory-plugins",
+  "repo_path": "/Users/ephandor/emdash/repositories/nfl-agent-memory-plugins",
   "default_branch": "main",
   "docs": { "readme": "README.md" },
   "sync": { "last_synced_commit": "DEADBEEFCAFE" }

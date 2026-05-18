@@ -97,7 +97,12 @@ doc_files_changed=0
 if [[ -n "$last_synced_commit" ]] && git -C "$REPO_ROOT" cat-file -e "${last_synced_commit}^{commit}" 2>/dev/null; then
   files_changed=$(git -C "$REPO_ROOT" diff --name-only "${last_synced_commit}..HEAD" 2>/dev/null | wc -l | tr -d ' ')
   if [[ "$files_changed" -gt 0 ]]; then
-    doc_files_changed=$(git -C "$REPO_ROOT" diff --name-only "${last_synced_commit}..HEAD" 2>/dev/null | grep -E "$PENSIEVE_DOC_PATTERNS_REGEX" | wc -l | tr -d ' ' || echo 0)
+    # grep returns 1 when nothing matches; pipefail would propagate that and
+    # break the wc count. Wrap grep in { ... || true; } so the pipeline only
+    # fails on a real error.
+    doc_files_changed=$(git -C "$REPO_ROOT" diff --name-only "${last_synced_commit}..HEAD" 2>/dev/null \
+      | { grep -E "$PENSIEVE_DOC_PATTERNS_REGEX" || true; } \
+      | wc -l | tr -d ' ')
   fi
 elif [[ -n "$last_synced_commit" ]]; then
   add_struct "unknown_last_synced_commit: ${last_synced_commit} not in local git history"
