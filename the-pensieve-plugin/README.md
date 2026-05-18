@@ -48,34 +48,129 @@ the agent's first turn via Basic Memory MCP. See spec §6.5.
 ## Prerequisites
 
 - **Claude Code** with plugin support.
-- **Basic Memory MCP connector** configured. For local development:
-  ```bash
-  uvx basic-memory mcp --project pensieve
-  ```
-  For the cloud topology see spec §17–18.
-- **`git` + `gh`** on `$PATH`. `gh` is needed by phase 2 skills, not by the
-  hook itself — install it before installing the skills.
+- **`uv` / `uvx`** for running Basic Memory. `brew install uv` if missing.
+- **`git` + `gh`** on `$PATH`. `gh` is needed by the verify/fetch skills,
+  not by the hook itself.
 - **`python3`** on `$PATH`. macOS ships one. Used by the hook for JSON
-  escaping (no external Python packages).
+  escape/validation (no `pip` packages required).
 
-## Install
+## Why this setup has multiple moving parts
 
-The plugin lives inside the `agent-plugins` marketplace at the repo root.
-Add the marketplace, then install the plugin:
+The plugin does **not** include the vault. It is a conductor without an
+orchestra. Three components together make the system work:
+
+| Component | Role |
+|---|---|
+| **the-pensieve-plugin** (this repo) | Tells Claude *how* and *when* to query the vault — routing rules, drift detection, skill descriptions. Pure orchestration. |
+| **Basic Memory MCP server** | Implements the `read_note` / `write_note` / `search_notes` / `edit_note` / `build_context` tools against your vault. Runs as a local stdio process spawned by Claude Code. |
+| **`~/the-pensieve/`** | The vault itself — plain markdown files on disk plus a SQLite index that Basic Memory manages. |
+
+Two reasons it's split this way (per spec §1, §12, §17):
+
+1. **Substitutability.** You can swap the vault between local-stdio Basic
+   Memory today and a Railway-hosted remote later, without changing one
+   line of plugin code. The plugin only knows the *protocol*, not where
+   the data lives.
+2. **Separation of concerns.** If the plugin breaks, your notes don't. If
+   your notes move, the plugin doesn't care.
+
+That's why installing the plugin alone produces a SessionStart message
+that says "no project meta cached" — the routing rules are loaded and the
+hook fires, but there's nothing on the other end of the MCP wire until
+you set Basic Memory up.
+
+## Setup (one-time)
+
+### 1. Create the vault directory
 
 ```bash
-# from inside a Claude Code session
-/plugin marketplace add /Users/ephandor/emdash/repositories/agent-plugins
+mkdir -p ~/the-pensieve
+```
+
+The vault is just a folder of markdown files. Basic Memory will manage a
+SQLite index next to it. Per spec §3 it organizes itself into
+`shared/`, `dictionary/`, `decisions/`, `projects/`, `daily/`, `_archive/`.
+
+### 2. Register the project with Basic Memory
+
+```bash
+uvx basic-memory project add pensieve ~/the-pensieve
+```
+
+`uvx` will install Basic Memory itself on first run (~150 packages,
+one-time). The Basic Memory CLI tracks multiple "projects" (vaults) by
+name — registering ours as `pensieve` lets the MCP server know which
+folder to expose.
+
+### 3. Wire Basic Memory into Claude Code as an MCP server
+
+```bash
+claude mcp add basic-memory --scope user -- \
+  uvx basic-memory mcp --project pensieve
+```
+
+`--scope user` means the connector is available in every Claude Code
+session, not just inside the project where you ran the command. The
+trailing `uvx basic-memory mcp --project pensieve` is the stdio command
+Claude Code will spawn whenever it needs the vault tools.
+
+Verify:
+
+```bash
+claude mcp list | grep basic-memory
+```
+
+You should see `basic-memory: uvx basic-memory mcp --project pensieve - ✓ Connected`.
+
+### 4. Install the plugin (if you haven't already)
+
+From inside Claude Code:
+
+```
+/plugin marketplace add Niklas-Flaig/agent-plugins
 /plugin install the-pensieve-plugin@niklas-agent-plugins
 ```
 
-Or, with a local-only path install (no marketplace registration):
+Then **fully quit and reopen Claude Code** so the SessionStart hook
+registers. After restart you should see one of these messages at session
+start (depending on whether a meta-mirror exists for the current repo):
+
+- `[pensieve] hook ran (not inside a git repository)`
+- `[pensieve] <slug>: no project meta cached — run /pensieve-init-project to track this repo`
+- `[pensieve] <slug>: clean (no drift since last sync)`
+- `[pensieve] <severity> drift on '<slug>': ...`
+
+### 5. Confirm the MCP tools are loaded inside Claude
+
+Open Claude Code in any git repo, then ask:
+
+> *"Do you have `read_note` / `write_note` / `search_notes` tools available?"*
+
+If yes → the full pipeline is live. Run `/pensieve-init-project` in a repo
+you want to track and walk through the prompts.
+
+If no → Claude Code didn't pick up the connector. Check `claude mcp list`
+again; if `basic-memory` is missing, repeat step 3 with the correct shell
+session. The MCP add modifies `~/.claude.json` under `mcpServers`.
+
+## Install
+
+See the full [Setup](#setup-one-time) section above. Short version:
 
 ```bash
-claude plugin install /Users/ephandor/emdash/repositories/agent-plugins/the-pensieve-plugin
+mkdir -p ~/the-pensieve
+uvx basic-memory project add pensieve ~/the-pensieve
+claude mcp add basic-memory --scope user -- uvx basic-memory mcp --project pensieve
 ```
 
-After install, restart Claude Code so the `SessionStart` hook registers.
+then inside Claude Code:
+
+```
+/plugin marketplace add Niklas-Flaig/agent-plugins
+/plugin install the-pensieve-plugin@niklas-agent-plugins
+```
+
+then fully quit + reopen Claude Code.
 
 ## Configure
 
