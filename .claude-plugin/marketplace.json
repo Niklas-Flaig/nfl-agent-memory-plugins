@@ -1,10 +1,10 @@
 {
-  "name": "niklas-agent-plugins",
+  "name": "nfl-agent-memory-plugins",
   "owner": {
     "name": "Lord Niklas Flaig"
   },
   "metadata": {
-    "description": "Private plugin registry for Claude Code plugins authored by Lord Niklas Flaig.",
+    "description": "Niklas Flaig's plugin registry dedicated to agentic memory — knowledge architecture, vault routing, drift detection, cross-project context, and the surrounding tooling.",
     "version": "0.1.0"
   },
   "plugins": [

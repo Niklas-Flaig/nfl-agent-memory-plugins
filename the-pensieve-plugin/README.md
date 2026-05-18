@@ -127,8 +127,8 @@ You should see `basic-memory: uvx basic-memory mcp --project pensieve - ✓ Conn
 From inside Claude Code:
 
 ```
-/plugin marketplace add Niklas-Flaig/agent-plugins
-/plugin install the-pensieve-plugin@niklas-agent-plugins
+/plugin marketplace add Niklas-Flaig/nfl-agent-memory-plugins
+/plugin install the-pensieve-plugin@nfl-agent-memory-plugins
 ```
 
 Then **fully quit and reopen Claude Code** so the SessionStart hook
@@ -166,8 +166,8 @@ claude mcp add basic-memory --scope user -- uvx basic-memory mcp --project pensi
 then inside Claude Code:
 
 ```
-/plugin marketplace add Niklas-Flaig/agent-plugins
-/plugin install the-pensieve-plugin@niklas-agent-plugins
+/plugin marketplace add Niklas-Flaig/nfl-agent-memory-plugins
+/plugin install the-pensieve-plugin@nfl-agent-memory-plugins
 ```
 
 then fully quit + reopen Claude Code.
