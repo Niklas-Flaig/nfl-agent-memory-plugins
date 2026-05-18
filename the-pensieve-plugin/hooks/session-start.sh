@@ -88,8 +88,17 @@ payload = {
     }
 }
 
-# systemMessage surfaces visibly to the user for moderate/heavy drift.
-if severity in ("moderate", "heavy"):
+# systemMessage surfaces visibly to the user. We emit on every session so
+# it's obvious the hook ran — wording scales to severity.
+if severity == "none":
+    payload["systemMessage"] = "[pensieve] hook ran (not inside a git repository)"
+elif severity == "unknown":
+    payload["systemMessage"] = f"[pensieve] {slug}: no project meta cached — run /pensieve-init-project to track this repo"
+elif severity == "clean":
+    payload["systemMessage"] = f"[pensieve] {slug}: clean (no drift since last sync)"
+elif severity == "minor":
+    payload["systemMessage"] = f"[pensieve] {slug}: minor ({files_changed} files, no docs)"
+else:
     payload["systemMessage"] = f"[pensieve] {severity} drift on '{slug}': {message}"
 
 print(json.dumps(payload))
