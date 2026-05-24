@@ -6,14 +6,22 @@
 # Skills that need richer config read it via dedicated helpers.
 
 [vault]
-# Pick exactly ONE of `url` or `path`. If both are set, `url` wins and `path`
+# Local-first is the default: the vault is a plain folder of markdown on disk,
+# served by a local stdio Basic Memory connector. Sync across devices is the
+# operator's job (e.g. point Google Drive / Syncthing at the vault dir).
+#
+# Pick exactly ONE of `path` or `url`. If both are set, `url` wins and `path`
 # is ignored with a warning at plugin load. There is no "hybrid mode".
-# url  = "https://pensieve.your-domain.app"
-path = "~/the-pensieve"
+path = "~/.pensieve"
+# url  = "https://pensieve.your-domain.app"  # optional: swap to a remote host
 basic_memory_project = "pensieve"
 
-# Auth is handled by Claude Code's built-in MCP OAuth. Configure the
-# connector once via:
+# Local connector (default):
+#   uvx basic-memory project add pensieve ~/.pensieve
+#   claude mcp add basic-memory --scope user -- uvx basic-memory mcp --project pensieve
+#
+# Remote connector (only if you set `url` above): auth is handled by Claude
+# Code's built-in MCP OAuth. Configure once via:
 #   claude mcp add basic-memory --transport http https://pensieve.your-domain.app/mcp
 #   claude mcp auth basic-memory
 # See spec §18 for the gateway-side setup.
@@ -40,7 +48,7 @@ minor_files_threshold = 10
 regex = "\\.(md|mdx)$|^docs/|^adr/|^CONTEXT\\.md|^README\\.md"
 
 [defrag]
-report_dir = "~/the-pensieve/_defrag-reports"
+report_dir = "~/.pensieve/_defrag-reports"
 default_logs_path_relative = ".memsearch/memory/"
 
 [behavior]

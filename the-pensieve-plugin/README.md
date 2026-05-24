@@ -63,15 +63,19 @@ orchestra. Three components together make the system work:
 |---|---|
 | **the-pensieve-plugin** (this repo) | Tells Claude *how* and *when* to query the vault — routing rules, drift detection, skill descriptions. Pure orchestration. |
 | **Basic Memory MCP server** | Implements the `read_note` / `write_note` / `search_notes` / `edit_note` / `build_context` tools against your vault. Runs as a local stdio process spawned by Claude Code. |
-| **`~/the-pensieve/`** | The vault itself — plain markdown files on disk plus a SQLite index that Basic Memory manages. |
+| **`~/.pensieve/`** | The vault itself — plain markdown files on disk. Basic Memory's SQLite index lives **separately** under `~/.basic-memory/`, not inside the vault, so syncing the vault folder never syncs the index. |
 
-Two reasons it's split this way (per spec §1, §12, §17):
+Three reasons it's split this way (per spec §1, §12, §17):
 
-1. **Substitutability.** You can swap the vault between local-stdio Basic
-   Memory today and a Railway-hosted remote later, without changing one
-   line of plugin code. The plugin only knows the *protocol*, not where
-   the data lives.
-2. **Separation of concerns.** If the plugin breaks, your notes don't. If
+1. **Local-first.** The default vault is a plain local folder (`~/.pensieve`).
+   Cross-device sync is the operator's job — point Google Drive, Syncthing, or
+   git at the folder. Because the index is kept out of the vault, only markdown
+   syncs and each device rebuilds its own index; there's no SQLite-over-cloud
+   corruption risk.
+2. **Substitutability.** You can swap the vault between local-stdio Basic
+   Memory (default) and a remote HTTP host later, without changing one line of
+   plugin code. The plugin only knows the *protocol*, not where the data lives.
+3. **Separation of concerns.** If the plugin breaks, your notes don't. If
    your notes move, the plugin doesn't care.
 
 That's why installing the plugin alone produces a SessionStart message
@@ -84,17 +88,18 @@ you set Basic Memory up.
 ### 1. Create the vault directory
 
 ```bash
-mkdir -p ~/the-pensieve
+mkdir -p ~/.pensieve
 ```
 
-The vault is just a folder of markdown files. Basic Memory will manage a
-SQLite index next to it. Per spec §3 it organizes itself into
+The vault is just a folder of markdown files. Basic Memory manages its
+SQLite index separately under `~/.basic-memory/` (not inside the vault), so
+the folder you sync stays markdown-only. Per spec §3 it organizes itself into
 `shared/`, `dictionary/`, `decisions/`, `projects/`, `daily/`, `_archive/`.
 
 ### 2. Register the project with Basic Memory
 
 ```bash
-uvx basic-memory project add pensieve ~/the-pensieve
+uvx basic-memory project add pensieve ~/.pensieve
 ```
 
 `uvx` will install Basic Memory itself on first run (~150 packages,
@@ -158,8 +163,8 @@ session. The MCP add modifies `~/.claude.json` under `mcpServers`.
 See the full [Setup](#setup-one-time) section above. Short version:
 
 ```bash
-mkdir -p ~/the-pensieve
-uvx basic-memory project add pensieve ~/the-pensieve
+mkdir -p ~/.pensieve
+uvx basic-memory project add pensieve ~/.pensieve
 claude mcp add basic-memory --scope user -- uvx basic-memory mcp --project pensieve
 ```
 
@@ -357,7 +362,7 @@ The static smoke tests already run during build:
       `the-pensieve-plugin:project-auditor`. Read-only tool list. Source
       logs come from the configured `logs_path` (per-project frontmatter
       override → global default → `.memsearch/memory/`).
-- [ ] `~/the-pensieve/_defrag-reports/<YYYY-MM-DD>.md` audit trail writes
+- [ ] `~/.pensieve/_defrag-reports/<YYYY-MM-DD>.md` audit trail writes
       (spec §11 Step 6).
 
 ### Operational / infra (separate workstream, not this session)

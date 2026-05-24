@@ -10,7 +10,9 @@ You have access to the user's two-tier knowledge architecture. Use it actively.
 - **Vault**: cross-project knowledge, **always accessed via Basic Memory MCP**.
   Use `search_notes`, `read_note`, `write_note`, `edit_note`, `build_context`.
   Never `Read` or `Grep` against the vault path directly — those bypass the
-  index and break when the vault is cloud-hosted.
+  index Basic Memory maintains (kept under `~/.basic-memory/`, separate from the
+  vault), and break entirely if the vault is ever hosted remotely. This holds
+  for the default local-first vault (`~/.pensieve`) too.
   - `shared/` — preferences, patterns, workflows
   - `dictionary/` — people, tools, places, concepts the user uses by name
     (subfolders: `people/`, `tools/`, `places/`, `concepts/` — routed by the

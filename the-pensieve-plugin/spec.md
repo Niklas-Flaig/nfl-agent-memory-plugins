@@ -5,6 +5,16 @@
 **Target platform:** Claude Code (plugins API)
 **Companion infrastructure:** Basic Memory MCP, memsearch CLI + plugin, GitHub CLI (`gh`)
 
+> **v0.2.0 — local-first default.** The canonical vault is now a plain local
+> directory at `~/.pensieve`, served by a local stdio Basic Memory connector,
+> with cross-device sync layered on by the operator (e.g. Google Drive). Basic
+> Memory's SQLite index stays per-device under `~/.basic-memory/`, so only
+> markdown syncs. The Railway/cloud-hosted topology (§17 Topology B, §18) is
+> demoted from canonical to an **optional remote swap** — the plugin is
+> location-agnostic, so it's a config/wiring change, not a code change. Path
+> examples below that still read `~/the-pensieve/` are illustrative of the same
+> logical layout; substitute `~/.pensieve/`.
+
 ---
 
 ## 1. Purpose
