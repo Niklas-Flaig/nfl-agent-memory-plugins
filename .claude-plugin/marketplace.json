@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Niklas Flaig's plugin registry dedicated to agentic memory — knowledge architecture, vault routing, drift detection, cross-project context, and the surrounding tooling.",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "plugins": [
     {

@@ -1,6 +1,6 @@
 {
   "name": "the-pensieve-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Routes Claude between repo-local docs and a cross-project Basic Memory vault. Injects routing rules at session start, detects local drift, and exposes verify/fetch/reconcile/update-meta skills.",
   "author": {
     "name": "Lord Niklas Flaig"
